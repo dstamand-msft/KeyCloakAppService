@@ -1,0 +1,34 @@
+# install sqlcmd for debugging MSI
+FROM registry.access.redhat.com/ubi9 AS ubi-micro-build
+RUN mkdir -p /mnt/rootfs
+RUN dnf install --installroot /mnt/rootfs openssh-server systemd --releasever 9 --setopt install_weak_deps=false --nodocs -y \
+    && dnf --installroot /mnt/rootfs clean all \
+    && rpm --root /mnt/rootfs -e --nodeps setup
+RUN dnf install -y bzip2 \
+    && dnf clean all
+
+RUN curl -s -L -o /tmp/sqlcmd-linux-amd64.tar.bz2 https://github.com/microsoft/go-sqlcmd/releases/download/v1.8.0/sqlcmd-linux-amd64.tar.bz2
+RUN mkdir -p /opt/mssql-tools/bin \
+    && tar -xvf /tmp/sqlcmd-linux-amd64.tar.bz2 -C /opt/mssql-tools/bin \
+    && chmod +x /opt/mssql-tools/bin/sqlcmd \
+    && ln -s /opt/mssql-tools/bin/sqlcmd /usr/bin/sqlcmd \
+    && rm /tmp/sqlcmd-linux-amd64.tar.bz2
+
+FROM quay.io/keycloak/keycloak:25.0.6
+COPY --from=ubi-micro-build /mnt/rootfs /
+COPY --from=ubi-micro-build /opt/mssql-tools /opt/mssql-tools
+
+WORKDIR /opt/keycloak/bin
+COPY entrypoint.sh ./
+
+USER root
+RUN echo "root:Docker!" | chpasswd \
+    && chmod u+x ./entrypoint.sh
+RUN systemctl enable --now sshd && systemctl status sshd
+COPY sshd_config /etc/ssh/
+
+USER 1000
+
+EXPOSE 8000 2222
+
+ENTRYPOINT [ "./entrypoint.sh" ]
