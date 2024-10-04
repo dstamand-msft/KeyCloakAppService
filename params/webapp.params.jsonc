@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "eastus2"
+        },
+        "appServicePlanName": {
+            "value": "plan-keycloak-demo"
+        },
+        "keyVaultName": {
+            "value": "<value>"
+        },
+        "keyVaultResourceGroupName": {
+            "value": "<value>"
+        },
+        "containerRegistryName": {
+            "value": "<value>"
+        },
+        "containerRegistryResourceGroupName": {
+            "value": "<value>"
+        },
+        "containerImageName": {
+            "value": "<value>.azurecr.io/keycloak/keycloak-msi:25.0.6"
+        },
+        "appServiceName": {
+            "value": "<value>"
+        },
+        "sqlServerFQDN": {
+            "value": "<value>.database.windows.net"
+        }
+    }
+}
