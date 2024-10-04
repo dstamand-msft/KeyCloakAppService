@@ -17,7 +17,7 @@ param entraIdAdministratorsGroupId string = ''
 
 var administrators = entraIdAdministratorsGroupId == '' ? {} : {
     // allow classic sql username/password
-    azureADOnlyAuthentication: false
+    azureADOnlyAuthentication: true
     login: 'SQLServerEntraIDAdministrators'
     principalType: 'Group'
     sid: entraIdAdministratorsGroupId
